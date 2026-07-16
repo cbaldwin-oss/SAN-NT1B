@@ -529,7 +529,7 @@
                         <div id="cl-closed-list"></div>
                         <button class="btn btn-add" onclick="addStatusRow('cl-closed-list', '#c8e6c9')">+ Add Status</button>
                     </div>
-                    <div class="status-group" id="cl-cxcomplete-group" style="display: none;">
+                    <div class="status-group" id="cl-cxcomplete-group" style="display: none; border-top: 2px dashed #4caf50; padding-top: 15px;">
                         <h4>Cx Complete</h4>
                         <div id="cl-cxcomplete-list"></div>
                         <button class="btn btn-add" onclick="addStatusRow('cl-cxcomplete-list', '#81c784')">+ Add Status</button>
@@ -591,6 +591,7 @@
                                 <th>Req. Prev Status</th>
                                 <th title="Max Gate CL Open">Max Gate</th>
                                 <th title="Max Support CL Open">Max Supp</th>
+                                <th title="Max Support CL Closed but NOT Cx Complete">Max Supp Pend. Cx</th>
                                 <th title="Max Gating Issues Open">Max Gate Iss.</th>
                                 <th title="Max Non-Gating Issues Open">Max Non-Gate Iss.</th>
                                 <th>Result Status</th>
@@ -600,9 +601,6 @@
                                 <th></th>
                             </tr>
                         </thead>
-                        <tbody id="phase-rules-list">
-                        </tbody>
-                    </table>
                 </div>
                 <button class="btn btn-add" style="width:auto; padding: 6px 15px;" onclick="addPhaseRuleRow()">+ Add Rule</button>
             </div>
@@ -1358,14 +1356,12 @@ window.onload = function() {
         }
         document.getElementById('show-l2-gate').checked = globalConfig.showL2Gate !== false;
         
-        // 🟢 THE FIX: Show the Cx Complete section ONLY if L2 Gate is disabled
+        // 🟢 ONLY show the Cx Complete settings if L2 Gates are disabled
         const cxGroup = document.getElementById('cl-cxcomplete-group');
         cxGroup.style.display = (globalConfig.showL2Gate === false) ? 'block' : 'none';
-        
-        // Live listener so it toggles instantly if the user clicks the checkbox
-        document.getElementById('show-l2-gate').onchange = function() {
+        document.getElementById('show-l2-gate').addEventListener('change', function() {
             cxGroup.style.display = this.checked ? 'none' : 'block';
-        };
+        });
 
         document.getElementById('show-l3-gate').checked = globalConfig.showL3Gate !== false;
         document.getElementById('show-l4-gate').checked = globalConfig.showL4Gate !== false;
@@ -1390,12 +1386,9 @@ window.onload = function() {
             container.innerHTML = '';
             if(map[id]) { map[id].forEach(s => container.appendChild(createRowHTML(s.name, s.color))); }
         }
-
         const prList = document.getElementById('phase-rules-list');
         prList.innerHTML = '';
-        if(globalConfig.phaseRules) {
-            globalConfig.phaseRules.forEach(rule => addPhaseRuleRow(rule));
-        }
+        if(globalConfig.phaseRules) globalConfig.phaseRules.forEach(rule => addPhaseRuleRow(rule));
     }
 
     function closeSettingsModal() { document.getElementById('settings-modal').classList.remove('active'); }
@@ -1408,7 +1401,7 @@ window.onload = function() {
 
     function addStatusRow(listId, defaultColor) { document.getElementById(listId).appendChild(createRowHTML('', defaultColor)); }
 
-    function addPhaseRuleRow(r = {}) {
+  function addPhaseRuleRow(r = {}) {
         const tbody = document.getElementById('phase-rules-list');
         const tr = document.createElement('tr');
         tr.className = 'rule-row';
@@ -1418,6 +1411,7 @@ window.onload = function() {
             <td><input type="text" class="r-prev" value="${r.prevStatus || ''}" placeholder="e.g. Complete"></td>
             <td><input type="text" class="r-mg" value="${r.maxGate !== undefined ? r.maxGate : ''}" placeholder="e.g. <=0"></td>
             <td><input type="text" class="r-ms" value="${r.maxSupport !== undefined ? r.maxSupport : ''}" placeholder="e.g. >0"></td>
+            <td><input type="text" class="r-mspcx" value="${r.maxSupportPendingCx !== undefined ? r.maxSupportPendingCx : ''}" placeholder="e.g. =0" title="Max closed checklists waiting for Cx Approval"></td>
             <td><input type="text" class="r-mgi" value="${r.maxGatingIssues !== undefined ? r.maxGatingIssues : ''}" placeholder="=0"></td>
             <td><input type="text" class="r-mngi" value="${r.maxNonGatingIssues !== undefined ? r.maxNonGatingIssues : ''}" placeholder="<=5"></td>
             <td><input type="text" class="r-res" value="${r.resultingStatus || ''}" placeholder="Result"></td>
@@ -1446,6 +1440,7 @@ window.onload = function() {
             prevStatus: row.querySelector('.r-prev').value.trim(),
             maxGate: row.querySelector('.r-mg').value.trim(),
             maxSupport: row.querySelector('.r-ms').value.trim(),
+            maxSupportPendingCx: row.querySelector('.r-mspcx').value.trim(),
             maxGatingIssues: row.querySelector('.r-mgi').value.trim(),
             maxNonGatingIssues: row.querySelector('.r-mngi').value.trim(),
             resultingStatus: row.querySelector('.r-res').value.trim(),
