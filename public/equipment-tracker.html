@@ -529,6 +529,11 @@
                         <div id="cl-closed-list"></div>
                         <button class="btn btn-add" onclick="addStatusRow('cl-closed-list', '#c8e6c9')">+ Add Status</button>
                     </div>
+                    <div class="status-group" id="cl-cxcomplete-group" style="display: none;">
+                        <h4>Cx Complete</h4>
+                        <div id="cl-cxcomplete-list"></div>
+                        <button class="btn btn-add" onclick="addStatusRow('cl-cxcomplete-list', '#81c784')">+ Add Status</button>
+                    </div>
                 </div>
                 
                 <div class="settings-col">
@@ -787,10 +792,12 @@
 
         let openArr = globalConfig.openStatuses || [];
         let closedArr = globalConfig.closedStatuses || [];
+        let cxCompleteArr = globalConfig.cxCompleteStatuses || [];
         
         if (type === 'test') { 
             openArr = globalConfig.testOpenStatuses || []; 
             closedArr = globalConfig.testClosedStatuses || []; 
+            cxCompleteArr = [];
         } else if (type === 'issue') {
             openArr = globalConfig.issueOpenStatuses || []; 
             closedArr = globalConfig.issueClosedStatuses || []; 
@@ -817,8 +824,12 @@
             }
         }
         
+        let exactCx = cxCompleteArr.find(s => s.name && lowerVal === String(s.name).toLowerCase().trim());
+        if (exactCx) return `background-color:${exactCx.color}; color:${getContrastYIQ(exactCx.color)};`;
+        
         let exactClosed = closedArr.find(s => s.name && lowerVal === String(s.name).toLowerCase().trim());
         if (exactClosed) return `background-color:${exactClosed.color}; color:${getContrastYIQ(exactClosed.color)};`;
+        
         let exactOpen = openArr.find(s => s.name && lowerVal === String(s.name).toLowerCase().trim());
         if (exactOpen) return `background-color:${exactOpen.color}; color:${getContrastYIQ(exactOpen.color)};`;
 
@@ -829,8 +840,12 @@
             if (nonGateMatch) return `background-color:${nonGateMatch.color}; color:${getContrastYIQ(nonGateMatch.color)};`;
         }
 
+        let matchCx = cxCompleteArr.find(s => s.name && lowerVal.includes(String(s.name).toLowerCase().trim()));
+        if (matchCx) return `background-color:${matchCx.color}; color:${getContrastYIQ(matchCx.color)};`;
+        
         let matchClosed = closedArr.find(s => s.name && lowerVal.includes(String(s.name).toLowerCase().trim()));
         if (matchClosed) return `background-color:${matchClosed.color}; color:${getContrastYIQ(matchClosed.color)};`;
+        
         let matchOpen = openArr.find(s => s.name && lowerVal.includes(String(s.name).toLowerCase().trim()));
         if (matchOpen) return `background-color:${matchOpen.color}; color:${getContrastYIQ(matchOpen.color)};`;
         
@@ -975,10 +990,12 @@ function renderGateCells(row, level, maxCount) {
     }
 
     // --- FIX FOR FILTER BUG: Now returns rawText properly for parsing ---
-    function combineOpenSupportCLs(row, level, maxCount) {
+function combineOpenSupportCLs(row, level, maxCount) {
         let openIds = [];
         let rawIds = [];
         let closedArr = (level === 'L4') ? (globalConfig.testClosedStatuses || []) : (globalConfig.closedStatuses || []);
+        let cxCompleteArr = (level === 'L4') ? [] : (globalConfig.cxCompleteStatuses || []); // 🟢 ADD THIS
+        
         for (let i = 1; i <= maxCount; i++) {
             const val = row[`${level} Support CL ${i}`];
             const link = row[`${level} Support CL ${i}_Link`] || row[`${level} Support CL ${i} Link`];
@@ -986,7 +1003,8 @@ function renderGateCells(row, level, maxCount) {
                 const match = String(val).match(/(.+?)\s*\((.+)\)/);
                 let id = ""; let include = false;
                 if (match) {
-                    if (!isStatusMatch(match[2], closedArr) && !String(match[2]).toLowerCase().includes('no cl')) {
+                    // 🟢 THE FIX: Only flag as open if it is NOT in closedArr AND NOT in cxCompleteArr
+                    if (!isStatusMatch(match[2], closedArr) && !isStatusMatch(match[2], cxCompleteArr) && !String(match[2]).toLowerCase().includes('no cl')) {
                         id = match[1].trim(); include = true;
                     }
                 } else if (String(val).toLowerCase() !== 'no cl' && String(val).toLowerCase() !== 'unknown') {
@@ -1339,6 +1357,16 @@ window.onload = function() {
             document.getElementById('cust-iss-status').value = globalConfig.customHeaders.issStatus;
         }
         document.getElementById('show-l2-gate').checked = globalConfig.showL2Gate !== false;
+        
+        // 🟢 THE FIX: Show the Cx Complete section ONLY if L2 Gate is disabled
+        const cxGroup = document.getElementById('cl-cxcomplete-group');
+        cxGroup.style.display = (globalConfig.showL2Gate === false) ? 'block' : 'none';
+        
+        // Live listener so it toggles instantly if the user clicks the checkbox
+        document.getElementById('show-l2-gate').onchange = function() {
+            cxGroup.style.display = this.checked ? 'none' : 'block';
+        };
+
         document.getElementById('show-l3-gate').checked = globalConfig.showL3Gate !== false;
         document.getElementById('show-l4-gate').checked = globalConfig.showL4Gate !== false;
         document.getElementById('show-l2-supp').checked = globalConfig.showL2Supp !== false;
@@ -1346,11 +1374,17 @@ window.onload = function() {
         document.getElementById('show-l4-supp').checked = globalConfig.showL4Supp !== false;
 
         const map = {
-            'cl-open-list': globalConfig.openStatuses, 'cl-closed-list': globalConfig.closedStatuses,
-            'test-open-list': globalConfig.testOpenStatuses, 'test-closed-list': globalConfig.testClosedStatuses,
-            'iss-open-list': globalConfig.issueOpenStatuses, 'iss-closed-list': globalConfig.issueClosedStatuses,
-            'iss-gating-list': globalConfig.gatingIssues, 'iss-nongating-list': globalConfig.nonGatingIssues
+            'cl-open-list': globalConfig.openStatuses, 
+            'cl-closed-list': globalConfig.closedStatuses,
+            'cl-cxcomplete-list': globalConfig.cxCompleteStatuses, // 🟢 ADD THIS
+            'test-open-list': globalConfig.testOpenStatuses, 
+            'test-closed-list': globalConfig.testClosedStatuses,
+            'iss-open-list': globalConfig.issueOpenStatuses, 
+            'iss-closed-list': globalConfig.issueClosedStatuses,
+            'iss-gating-list': globalConfig.gatingIssues, 
+            'iss-nongating-list': globalConfig.nonGatingIssues
         };
+
         for(let id in map) {
             let container = document.getElementById(id);
             container.innerHTML = '';
@@ -1430,8 +1464,10 @@ window.onload = function() {
         };
 
         const payload = { 
-            openStatuses: getListValues('cl-open-list'), closedStatuses: getListValues('cl-closed-list'),
-            testOpenStatuses: getListValues('test-open-list'), testClosedStatuses: getListValues('test-closed-list'),
+            openStatuses: getListValues('cl-open-list'), 
+            closedStatuses: getListValues('cl-closed-list'),
+            cxCompleteStatuses: getListValues('cl-cxcomplete-list'), // 🟢 ADD THIS
+            testOpenStatuses: getListValues('test-open-list'),
             issueOpenStatuses: getListValues('iss-open-list'), issueClosedStatuses: getListValues('iss-closed-list'),
             gatingIssues: getListValues('iss-gating-list'), nonGatingIssues: getListValues('iss-nongating-list'),
             phaseRules: newPhaseRules,
