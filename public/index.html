@@ -5,7 +5,7 @@
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PHXA7 LaunchPad</title>
+    <title>SANNT1B LaunchPad</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚀</text></svg>">
     <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1157,7 +1157,7 @@ html, body {
 <div class="header">
     
    <div class="header-left">
-        <img src="https://lh3.googleusercontent.com/u/0/d/19X-3FQsiBXcebD2B_USMMtzDzgVfKSnX" alt="Logo">
+        <img src="https://lh3.googleusercontent.com/u/0/d/1gKjSAGVsluIf_vEmEL-YPQ5x1KOgcwwp" alt="Logo">
     </div>
     <div class="header-center">
         <span>LaunchPad</span>
@@ -1361,7 +1361,7 @@ html, body {
 <div id="dashboard-view" style="display: none; height: 100%; width: 100%; overflow: hidden;">
     <iframe 
         id="streamlit-iframe"
-        src="https://criticalarc-stream-cxdashboard.streamlit.app/?embed=true&embed_options=light_theme" 
+        src="https://criticalarc-san-terminal-cxdashboard.streamlit.app/?embed=true&embed_options=light_theme" 
         width="100%" 
         height="100%" 
         frameborder="0"
@@ -1921,7 +1921,7 @@ async function showCellHistory(e, rowId, colIndex) {
     content.innerHTML = '<p style="text-align:center; color:#666;">Loading history...</p>';
 
     const { data, error } = await _supabase
-        .from('PHXA7edit_history')
+        .from('SANNT1Bedit_history')
         .select('*')
         .eq('row_id', rowId)
         .eq('col_index', colIndex)
@@ -3617,8 +3617,8 @@ async function declineUser(email, requestId) { // Added email parameter here
     if (!confirm(`Are you sure you want to decline the request from ${email}?`)) return;
 
     try {
-        // 1. Remove from PHXA7access_requests
-        const { error } = await _supabase.from('PHXA7access_requests').delete().eq('id', requestId);
+        // 1. Remove from SANNT1Baccess_requests
+        const { error } = await _supabase.from('SANNT1Baccess_requests').delete().eq('id', requestId);
         if (error) throw error;
 
         // 2. Send Notification Email via Google Script
@@ -3634,7 +3634,7 @@ async function declineUser(email, requestId) { // Added email parameter here
 
 async function refreshRequestList() {
     const listContainer = document.getElementById('request-list');
-    const { data, error } = await _supabase.from('PHXA7access_requests').select('*');
+    const { data, error } = await _supabase.from('SANNT1Baccess_requests').select('*');
 
     if (error || !data || data.length === 0) {
         listContainer.innerHTML = '<p style="color: #666; font-size: 13px; text-align: center; padding: 20px;">No pending requests.</p>';
@@ -3661,15 +3661,15 @@ async function refreshRequestList() {
 
 async function admitUser(email, company, requestId) {
     try {
-        // 1. Add to PHXA7authorized_editors including the company
+        // 1. Add to SANNT1Bauthorized_editors including the company
         const { error: addError } = await _supabase
-            .from('PHXA7authorized_editors')
+            .from('SANNT1Bauthorized_editors')
             .insert([{ email: email.toLowerCase(), company: company }]);
         
         if (addError) throw addError;
 
-        // 2. Remove from PHXA7access_requests
-        await _supabase.from('PHXA7access_requests').delete().eq('id', requestId);
+        // 2. Remove from SANNT1Baccess_requests
+        await _supabase.from('SANNT1Baccess_requests').delete().eq('id', requestId);
 
         // 3. Send Notification Email via Google Script
         const url = `${GOOGLE_SCRIPT_URL}?action=notifyAdmit&email=${encodeURIComponent(email)}`;
@@ -3686,8 +3686,8 @@ let presenceChannel;
 
 async function initPresence(userEmail) {
     // --- THE FIX: Create a site-specific Presence Channel ---
-    // By changing 'online-users' to 'online-users-PHXA7', you isolate this room!
-    presenceChannel = _supabase.channel('online-users-PHXA7', {
+    // By changing 'online-users' to 'online-users-SANNT1B', you isolate this room!
+    presenceChannel = _supabase.channel('online-users-SANNT1B', {
         config: { presence: { key: userEmail } }
     });
 
@@ -3740,12 +3740,13 @@ function stringToColor(str) {
 }
 
 function initRealtimeSync() {
+    // 1. MASTER SCHEDULE SYNC
     _supabase
         .channel('schema-db-changes')
         .on('postgres_changes', { 
-            event: '*', // Listen to INSERT, UPDATE, and DELETE
+            event: '*', 
             schema: 'public', 
-            table: 'PHXA7BackEndData' // FIX: Corrected table name
+            table: 'SANNT1BBackEndData' 
         }, payload => {
             if (payload.eventType === 'UPDATE' || payload.eventType === 'INSERT') {
                 const row = payload.new;
@@ -3764,6 +3765,51 @@ function initRealtimeSync() {
                     if (statusCell) statusCell.innerText = "...";
                 }
             }
+        })
+        .subscribe();
+
+    // 2. NEW: ADMIN USER REQUESTS SYNC
+    if (window.isAdmin) {
+        _supabase
+            .channel('admin-requests-sync')
+            .on('postgres_changes', { 
+                event: '*', 
+                schema: 'public', 
+                table: 'SANNT1Baccess_requests' 
+            }, payload => {
+                // Auto-refresh the panel if it's currently open on screen
+                const panel = document.getElementById('admin-panel');
+                if (panel && panel.style.display !== 'none') {
+                    refreshRequestList();
+                }
+                
+                // Flash a red visual alert on the "Manage Access" button if a new request comes in
+                const btn = document.getElementById('admin-share-btn');
+                if (btn && payload.eventType === 'INSERT') {
+                    btn.style.backgroundColor = '#ffebee';
+                    btn.style.color = '#d32f2f';
+                    btn.innerHTML = '🚨 New Access Request!';
+                    setTimeout(() => {
+                        btn.style.backgroundColor = 'transparent';
+                        btn.style.color = '#01579b';
+                        btn.innerHTML = '👤 Manage Access';
+                    }, 5000);
+                }
+            })
+            .subscribe();
+    }
+
+    // 3. NEW: SYSTEM DROPDOWN DATA SYNC
+    // If another user adds an activity/asset in settings, it instantly pushes to everyone's dropdowns
+    _supabase
+        .channel('dropdown-sync')
+        .on('postgres_changes', { 
+            event: '*', 
+            schema: 'public', 
+            table: 'SANNT1Bdropdownoptions' 
+        }, payload => {
+            console.log("System data changed by another user. Refreshing dropdowns silently...");
+            fetchSANNT1Bdropdownoptions();
         })
         .subscribe();
 }
@@ -3837,10 +3883,10 @@ async function handleForgotPin() {
 // 1. Function to handle sending the Magic Link
 // --- AUTHENTICATION LOGIC ---
 
-// 1. Verify if email exists in your PHXA7authorized_editors table
+// 1. Verify if email exists in your SANNT1Bauthorized_editors table
 async function verifyPermission(email) {
     const { data, error } = await _supabase
-        .from('PHXA7authorized_editors')
+        .from('SANNT1Bauthorized_editors')
         .select('is_admin, company') // Fetch company here
         .eq('email', email.toLowerCase())
         .single();
@@ -3944,7 +3990,7 @@ async function completeAppLaunch() {
     
     try {
         // Load the actual schedule data
-        await fetchPHXA7dropdownoptions();
+        await fetchSANNT1Bdropdownoptions();
         await loadEquivalentActivities();
         await loadScheduleConfig();
         await loadAppConfig();
@@ -4015,7 +4061,7 @@ if (permissions.isAuthorized) {
 
     if (window.isAdmin) {
         console.log("🧹 Admin detected: Cleaning up old history records...");
-        const { error } = await _supabase.rpc('delete_old_PHXA7edit_history');
+        const { error } = await _supabase.rpc('delete_old_SANNT1Bedit_history');
         if (error) console.error("Cleanup Error:", error);
     }
     
@@ -4032,7 +4078,7 @@ if (permissions.isAuthorized) {
     }
     
    // Continue with the rest of the launch sequence
-    await fetchPHXA7dropdownoptions();
+    await fetchSANNT1Bdropdownoptions();
     await loadEquivalentActivities();
     await loadScheduleConfig();
     
@@ -4074,7 +4120,7 @@ async function processGrantAccess() {
     try {
         // --- THE INTERACTION WITH SUPABASE ---
         const { error } = await _supabase
-            .from('PHXA7authorized_editors')
+            .from('SANNT1Bauthorized_editors')
             .insert([{ email: emailToAdd.toLowerCase() }]);
 
         if (error) throw error;
@@ -4391,14 +4437,14 @@ async function syncAllAssetLookups() {
     }
 }
 
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxAGGzz8TSK29Zz-nDPw72FnhqoyCkYX-OU0bW8xbZ27QYMZjqaf57GQIgdPD9Bt1It/exec';
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxTf0KgrhPV3F-zTRBselP_bfIgmR5sFbwCv6_3iq8BdmjnEOslf6TXjpTKM_uzQIQ4Wg/exec';
 
 let dropdownData = { col1: [], col2: [], col3: [], col4: [], col6: [], col7: [] };
 
-async function fetchPHXA7dropdownoptions() {
+async function fetchSANNT1Bdropdownoptions() {
     // 1. Fetch ALL columns at once so we can see which Assets map to which Places on the same row
     const { data, error } = await _supabase
-        .from('PHXA7dropdownoptions')
+        .from('SANNT1Bdropdownoptions')
         .select('Times, Places, Activities, Assets, Trade_Partners, Results')
         .range(0, 1000); 
 
@@ -4995,7 +5041,7 @@ function saveCell(cell, value, colIndex, isImmediate = false) {
         updateObj[`col${colIndex}`] = currentValue;
 
         const { data, error } = await _supabase
-            .from('PHXA7BackEndData')
+            .from('SANNT1BBackEndData')
             .upsert([updateObj])
             .select();
 
@@ -5006,7 +5052,7 @@ function saveCell(cell, value, colIndex, isImmediate = false) {
             // --- LOG TO EDIT HISTORY ---
             // Only log if this wasn't a redundant failsafe save
             if (currentValue !== oldValue) {
-                await _supabase.from('PHXA7edit_history').insert([{
+                await _supabase.from('SANNT1Bedit_history').insert([{
                     row_id: parseInt(rowNum),
                     col_index: colIndex,
                     old_value: oldValue,
@@ -5554,7 +5600,7 @@ async function deleteFullRow(wrapperId, bypassConfirm = false) {
         }
 
         try {
-            const { error } = await _supabase.from('PHXA7BackEndData').delete().eq('id', rowNumericId);
+            const { error } = await _supabase.from('SANNT1BBackEndData').delete().eq('id', rowNumericId);
             if (error) throw error;
         } catch (err) {
             console.error("Delete error:", err.message);
@@ -5665,7 +5711,7 @@ async function saveRow(rowNum, dayLabel, col6Override = null) {
     };
 
     try {
-        const { error } = await _supabase.from('PHXA7BackEndData').upsert(rowData, { onConflict: 'id' });
+        const { error } = await _supabase.from('SANNT1BBackEndData').upsert(rowData, { onConflict: 'id' });
         if (!error) document.getElementById('saveIndicator').innerText = `Last saved at: ${getTimestamp()}`;
     } catch (err) {
         console.error("🔴 Save Error:", err);
@@ -5886,7 +5932,7 @@ async function switchToRequestView() {
     document.getElementById('auth-success').style.display = 'none';
     
     // 1. Wait for the company list to finish downloading
-    await fetchPHXA7dropdownoptions(); 
+    await fetchSANNT1Bdropdownoptions(); 
     
     // 2. Inject the Trade Partners (Col 6) into the dropdown
     const companySelect = document.getElementById('request-company-select');
@@ -5948,7 +5994,7 @@ async function submitAccessRequest() {
     try {
         // 1. Log request with Company in Supabase
         const { error: dbError } = await _supabase
-            .from('PHXA7access_requests')
+            .from('SANNT1Baccess_requests')
             .insert([{ email, company }]);
         
         if (dbError) throw dbError;
@@ -5983,7 +6029,7 @@ function getTimestamp() {
 
 async function loadData(isSilent = false) {
     try {
-        const { data, error } = await _supabase.from('PHXA7BackEndData').select('*');
+        const { data, error } = await _supabase.from('SANNT1BBackEndData').select('*');
         if (error) throw error;
 
         if (data) {
