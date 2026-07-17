@@ -3859,7 +3859,7 @@ async function handleForgotPin() {
         return;
     }
     const { error } = await _supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: GOOGLE_SCRIPT_URL, // <--- THE FIX
+        redirectTo: "https://san-nt1b.vercel.app/", // <--- THE FIX
     });
 
     if (error) {
