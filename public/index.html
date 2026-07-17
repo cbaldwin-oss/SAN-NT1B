@@ -3853,15 +3853,13 @@ async function handleForgotPin() {
     const email = document.getElementById('user-email-input').value.trim().toLowerCase();
     const errorEl = document.getElementById('auth-error');
     const successEl = document.getElementById('auth-success');
-
     if (!email) {
         errorEl.innerText = "Please enter your email address first.";
         errorEl.style.display = 'block';
         return;
     }
-
     const { error } = await _supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: window.location.origin + window.location.pathname,
+        redirectTo: GOOGLE_SCRIPT_URL, // <--- THE FIX
     });
 
     if (error) {
