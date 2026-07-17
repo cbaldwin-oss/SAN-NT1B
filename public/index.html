@@ -3590,6 +3590,23 @@ async function triggerFullStatusRefresh() {
         const { createClient } = supabase;
         const _supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
+        // --- THE FIX: Let Supabase officially flag when a password reset happens ---
+        _supabase.auth.onAuthStateChange((event, session) => {
+            if (event === 'PASSWORD_RECOVERY') {
+                window.isUpdateMode = true; // Raise the flag!
+                
+                // Force the UI to the PIN Update screen instantly
+                document.getElementById('loading-spinner-section').style.display = 'none';
+                document.getElementById('auth-prompt').style.display = 'block';
+                
+                document.getElementById('auth-title').innerText = "Update PIN";
+                document.getElementById('auth-subtitle').innerText = "Enter your new 6-digit PIN below.";
+                document.getElementById('auth-btn').innerText = "Set New PIN";
+                document.getElementById('user-email-input').style.display = 'none';
+                document.getElementById('auth-toggle-link').parentElement.style.display = 'none';
+            }
+        });
+
         // 1. Define the Admin Email at the top of your <script>
 const ADMIN_EMAIL = "cbaldwin@criticalarccx.com"; // Change to your actual email
 
@@ -4025,7 +4042,7 @@ async function startApp() {
     }
 
     // Detect Recovery (Forgot PIN) link using the corrected hash
-    const isRecovery = currentHash.includes('type=recovery');
+const isRecovery = currentHash.includes('type=recovery') || window.isUpdateMode === true;
 
     if (isRecovery) {
         spinnerSection.style.display = 'none';
