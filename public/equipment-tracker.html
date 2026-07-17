@@ -230,6 +230,9 @@
         body.hide-l2-gate .l2-gate-col { display: none !important; }
         body.hide-l3-gate .l3-gate-col { display: none !important; }
         body.hide-l4-gate .l4-gate-col { display: none !important; }
+        body.hide-l2-phase .l2-phase-element { display: none !important; }
+        body.hide-l3-phase .l3-phase-element { display: none !important; }
+        body.hide-l4-phase .l4-phase-element { display: none !important; }
 
         /* --- MODALS --- */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 3000; display: none; align-items: center; justify-content: center; }
@@ -369,64 +372,62 @@
         <div class="tracker-header-wrapper">
             <div class="frozen-group-bar">
                 <div class="header-cell frozen-combined">Asset Details</div>
-                <div class="phase-gap"></div>
-                <div class="header-cell group-header" id="group-l2">L2 Verification</div>
-                <div class="phase-gap"></div>
-                <div class="header-cell group-header" id="group-l3">L3 Functional</div>
-                <div class="phase-gap"></div>
-                <div class="header-cell group-header" id="group-l4">L4 Integrated</div>
+                
+                <div class="phase-gap l2-phase-element"></div>
+                <div class="header-cell group-header l2-phase-element" id="group-l2">L2 Verification</div>
+                
+                <div class="phase-gap l3-phase-element"></div>
+                <div class="header-cell group-header l3-phase-element" id="group-l3">L3 Functional</div>
+                
+                <div class="phase-gap l4-phase-element"></div>
+                <div class="header-cell group-header l4-phase-element" id="group-l4">L4 Integrated</div>
+                
                 <div class="phase-gap"></div>
                 <div class="header-cell group-issues" id="group-iss">Asset Issues</div>
             </div>
             
             <div class="frozen-col-bar" id="main-column-headers">
-                
                 <div class="header-cell frozen-combined">
                     <div class="asset-part-header">
                         <div class="title-wrap">
-                            <span class="col-title" data-original="Asset">Asset</span> 
+                            <span class="col-title" data-original="Asset">Asset</span>
                             <span class="filter-icon" data-col="0" onclick="toggleFilter(event, 0)">▼</span>
                         </div>
                     </div>
                     <div class="area-part-header">
                         <div class="title-wrap" style="color: #22c922;">
-                            <span class="col-title" id="area-title" data-original="Area">Area</span> 
+                            <span class="col-title" id="area-title" data-original="Area">Area</span>
                             <span class="filter-icon" data-col="1" onclick="toggleFilter(event, 1)">▼</span>
                         </div>
                     </div>
                 </div>
-
-                <div class="phase-gap"></div>
                 
-                <div class="header-cell gate-cell l2-gate-col"><div class="title-wrap"><span class="col-title" id="l2-gate-title" data-original="Gate CL">Gate CL</span><span class="filter-icon" data-col="2" onclick="toggleFilter(event, 2)">▼</span></div></div>
-                <div class="header-cell summary-cell" id="l2-supp-header">
+                <div class="phase-gap l2-phase-element"></div>
+                <div class="header-cell gate-cell l2-gate-col l2-phase-element"><div class="title-wrap"><span class="col-title" id="l2-gate-title" data-original="Gate CL">Gate CL</span><span class="filter-icon" data-col="2" onclick="toggleFilter(event, 2)">▼</span></div></div>
+                <div class="header-cell summary-cell l2-phase-element" id="l2-supp-header">
                     <div class="title-wrap"><span class="col-title" id="l2-status-title" data-original="Status">Status</span><span class="filter-icon" data-col="3" onclick="toggleFilter(event, 3)">▼</span></div>
                     <div class="expand-btn" data-target="l2-supp" onclick="window.toggleExpansion('l2')">+</div>
                 </div>
                 
-                <div class="phase-gap"></div>
-                
-                <div class="header-cell gate-cell l3-gate-col"><div class="title-wrap"><span class="col-title" id="l3-gate-title" data-original="Gate CL">Gate CL</span><span class="filter-icon" data-col="4" onclick="toggleFilter(event, 4)">▼</span></div></div>
-                <div class="header-cell summary-cell" id="l3-supp-header">
+                <div class="phase-gap l3-phase-element"></div>
+                <div class="header-cell gate-cell l3-gate-col l3-phase-element"><div class="title-wrap"><span class="col-title" id="l3-gate-title" data-original="Gate CL">Gate CL</span><span class="filter-icon" data-col="4" onclick="toggleFilter(event, 4)">▼</span></div></div>
+                <div class="header-cell summary-cell l3-phase-element" id="l3-supp-header">
                     <div class="title-wrap"><span class="col-title" id="l3-status-title" data-original="Status">Status</span><span class="filter-icon" data-col="5" onclick="toggleFilter(event, 5)">▼</span></div>
                     <div class="expand-btn" data-target="l3-supp" onclick="window.toggleExpansion('l3')">+</div>
                 </div>
-
-                <div class="phase-gap"></div>
                 
-                <div class="header-cell gate-cell l4-gate-col"><div class="title-wrap"><span class="col-title" id="l4-gate-title" data-original="Gate CL">Gate CL</span><span class="filter-icon" data-col="6" onclick="toggleFilter(event, 6)">▼</span></div></div>
-                <div class="header-cell summary-cell" id="l4-supp-header">
+                <div class="phase-gap l4-phase-element"></div>
+                <div class="header-cell gate-cell l4-gate-col l4-phase-element"><div class="title-wrap"><span class="col-title" id="l4-gate-title" data-original="Gate CL">Gate CL</span><span class="filter-icon" data-col="6" onclick="toggleFilter(event, 6)">▼</span></div></div>
+                <div class="header-cell summary-cell l4-phase-element" id="l4-supp-header">
                     <div class="title-wrap"><span class="col-title" id="l4-status-title" data-original="Status">Status</span><span class="filter-icon" data-col="7" onclick="toggleFilter(event, 7)">▼</span></div>
                     <div class="expand-btn" data-target="l4-supp" onclick="window.toggleExpansion('l4')">+</div>
                 </div>
-
+                
                 <div class="phase-gap"></div>
-
                 <div class="header-cell summary-cell" id="global-iss-header">
                     <div class="title-wrap"><span class="col-title" id="iss-status-title" data-original="Open Issues">Open Issues</span><span class="filter-icon" data-col="8" onclick="toggleFilter(event, 8)">▼</span></div>
                     <div class="expand-btn" data-target="global-iss" onclick="window.toggleGlobalIssues()">+</div>
                 </div>
-
             </div>
         </div>
         <div class="rows-container" id="tracker-rows"></div>
@@ -869,17 +870,6 @@
         return statusArray.some(item => item.name && s.includes(String(item.name).toLowerCase().trim()));
     }
 
-    function generateGateHeaderHTML(level, maxCount, baseTitle, filterColIndex) {
-        let html = '';
-        for (let i = 1; i <= maxCount; i++) {
-            let title = maxCount > 1 ? `${baseTitle} ${i}` : baseTitle;
-            // Only attach the filter dropdown to the first Gate column to preserve filter logic
-            let filterHtml = (i === 1) ? `<span class="filter-icon" data-col="${filterColIndex}" onclick="toggleFilter(event, ${filterColIndex})">▼</span>` : '';
-            html += `<div class="header-cell gate-cell ${level.toLowerCase()}-gate-col dynamic-gate-header"><div class="title-wrap"><span class="col-title" data-original="${title}">${title}</span>${filterHtml}</div></div>`;
-        }
-        return html;
-    }
-
 function renderGateCells(row, level, maxCount) {
         let html = '';
         let type = (level === 'L4') ? 'test' : 'checklist';
@@ -1053,11 +1043,23 @@ function combineOpenSupportCLs(row, level, maxCount) {
         return "";
     };
 
+function generateGateHeaderHTML(level, maxCount, baseTitle, filterColIndex) {
+        let html = '';
+        let phaseClass = `${level.toLowerCase()}-phase-element`; // 🟢 THE FIX
+        for (let i = 1; i <= maxCount; i++) {
+            let title = maxCount > 1 ? `${baseTitle} ${i}` : baseTitle;
+            let filterHtml = (i === 1) ? `<span class="filter-icon" data-col="${filterColIndex}" onclick="toggleFilter(event, ${filterColIndex})">▼</span>` : '';
+            html += `<div class="header-cell gate-cell ${level.toLowerCase()}-gate-col dynamic-gate-header ${phaseClass}"><div class="title-wrap"><span class="col-title" data-original="${title}">${title}</span>${filterHtml}</div></div>`;
+        }
+        return html;
+    }
+
     function generateHeaderHTML(level, max) {
         let html = '';
+        let phaseClass = `${level.toLowerCase()}-phase-element`; // 🟢 THE FIX
         for (let i = 1; i <= max; i++) {
             let isLast = (i === max) ? 'divider-right' : '';
-            html += `<div class="header-cell col-details ${level.toLowerCase()}-supp-details cl-cell dynamic-header ${isLast}">Supp ${i}</div>`;
+            html += `<div class="header-cell col-details ${level.toLowerCase()}-supp-details cl-cell dynamic-header ${phaseClass} ${isLast}">Supp ${i}</div>`;
         }
         return html;
     }
@@ -1164,11 +1166,23 @@ async function fetchTrackerData(isSilent = false) {
                     }
                 }
             });
+            // Existing Code...
             globalConfig.maxCols = actualMaxCols;
+            
+            // 🟢 THE FIX: Calculate Master Phase Visibility
+            globalConfig.showL2Phase = globalConfig.showL2Gate !== false || globalConfig.showL2Supp !== false;
+            globalConfig.showL3Phase = globalConfig.showL3Gate !== false || globalConfig.showL3Supp !== false;
+            globalConfig.showL4Phase = globalConfig.showL4Gate !== false || globalConfig.showL4Supp !== false;
 
+            // Existing Gate Toggles...
             document.body.classList.toggle('hide-l2-gate', globalConfig.showL2Gate === false);
             document.body.classList.toggle('hide-l3-gate', globalConfig.showL3Gate === false);
             document.body.classList.toggle('hide-l4-gate', globalConfig.showL4Gate === false);
+            
+            // 🟢 THE FIX: Toggle Master Phase CSS Classes
+            document.body.classList.toggle('hide-l2-phase', !globalConfig.showL2Phase);
+            document.body.classList.toggle('hide-l3-phase', !globalConfig.showL3Phase);
+            document.body.classList.toggle('hide-l4-phase', !globalConfig.showL4Phase);
 
             document.querySelectorAll('.dynamic-header').forEach(el => el.remove()); 
             document.querySelectorAll('.dynamic-gate-header').forEach(el => el.remove());
@@ -1255,23 +1269,29 @@ async function fetchTrackerData(isSilent = false) {
                         <div class="filter-target asset-part" data-col="0" data-val="${assetId}" title="${assetId}">${assetDisplay}</div>
                         <div class="filter-target area-part" data-col="1" data-val="${areaVal}" title="${areaVal}">${areaVal}</div>
                     </div>
-                    <div class="phase-gap"></div>
                     
+                    ${globalConfig.showL2Phase ? `
+                    <div class="phase-gap l2-phase-element"></div>
                     ${renderGateCells(row, 'L2', globalConfig.maxCols.l2Gate)}
-                    <div class="filter-target summary-cell l2-supp-summary divider-right" style="${getDynamicStyle(row['L2 Overall Status'], 'checklist', true)}" data-val="${row['L2 Overall Status'] || 'N/A'}">${row['L2 Overall Status'] || 'N/A'}</div>
+                    <div class="filter-target summary-cell l2-supp-summary divider-right l2-phase-element" style="${getDynamicStyle(row['L2 Overall Status'], 'checklist', true)}" data-val="${row['L2 Overall Status'] || 'N/A'}">${row['L2 Overall Status'] || 'N/A'}</div>
                     ${renderSupportCells(row, 'L2', globalConfig.maxCols.l2)}
-                    <div class="phase-gap"></div>
+                    ` : ''}
                     
+                    ${globalConfig.showL3Phase ? `
+                    <div class="phase-gap l3-phase-element"></div>
                     ${renderGateCells(row, 'L3', globalConfig.maxCols.l3Gate)}
-                    <div class="filter-target summary-cell l3-supp-summary divider-right" style="${getDynamicStyle(row['L3 Overall Status'], 'checklist', true)}" data-val="${row['L3 Overall Status'] || 'N/A'}">${row['L3 Overall Status'] || 'N/A'}</div>
+                    <div class="filter-target summary-cell l3-supp-summary divider-right l3-phase-element" style="${getDynamicStyle(row['L3 Overall Status'], 'checklist', true)}" data-val="${row['L3 Overall Status'] || 'N/A'}">${row['L3 Overall Status'] || 'N/A'}</div>
                     ${renderSupportCells(row, 'L3', globalConfig.maxCols.l3)}
-                    <div class="phase-gap"></div>
+                    ` : ''}
                     
+                    ${globalConfig.showL4Phase ? `
+                    <div class="phase-gap l4-phase-element"></div>
                     ${renderGateCells(row, 'L4', globalConfig.maxCols.l4Gate)}
-                    <div class="filter-target summary-cell l4-supp-summary divider-right" style="${getDynamicStyle(row['L4 Overall Status'], 'test', true)}" data-val="${row['L4 Overall Status'] || 'N/A'}">${row['L4 Overall Status'] || 'N/A'}</div>
+                    <div class="filter-target summary-cell l4-supp-summary divider-right l4-phase-element" style="${getDynamicStyle(row['L4 Overall Status'], 'test', true)}" data-val="${row['L4 Overall Status'] || 'N/A'}">${row['L4 Overall Status'] || 'N/A'}</div>
                     ${renderSupportCells(row, 'L4', globalConfig.maxCols.l4)}
-                    <div class="phase-gap"></div>
+                    ` : ''}
                     
+                    <div class="phase-gap"></div>
                     <div class="filter-target summary-cell global-iss-summary divider-right" style="${getDynamicStyle(issuesOpen.count, 'issue', false)}" data-val="${fVal8}">${issuesOpen.display}</div>
                     ${renderIssuesBlock(row, globalConfig.maxCols.iss)}
                 </div>`;
